@@ -53,31 +53,40 @@ const average = (arr) =>
 // const KEY = "ad771e66";
 const KEY = "bea6759b";
 export default function App() {
+  const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const query = ",mjhgfcvbn";
+  const tempQuery = "interstellar";
+
+  useEffect(() => {
+    console.log("A");
+  }, []);
+
+  useEffect(() => {
+    console.log("B");
+  });
+
+  console.log("C");
 
   useEffect(() => {
     async function fetchMovies() {
       try {
         setIsLoading(true);
         const resp = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+          `http://www.omdbapi.com/?apikey=${KEY}&s=${tempQuery}`
         );
 
         if (!resp.ok)
           throw new Error("Something went wrong when Fetching movies");
 
         const data = await resp.json();
-        console.log(data);
 
         if (data.Response === "False") throw new Error("Movie not found");
 
         setMovies(data.Search);
       } catch (err) {
-        console.error(err.message);
         setError(err.message);
       } finally {
         setIsLoading(false);
@@ -87,11 +96,10 @@ export default function App() {
     fetchMovies();
   }, []);
 
-  console.log(error);
-
   return (
     <>
       <NavBar>
+        <Search query={query} setQuery={setQuery} />
         <NumResult movies={movies} />
       </NavBar>
       <Main>
@@ -128,7 +136,6 @@ function NavBar({ children }) {
   return (
     <nav className="nav-bar">
       <Logo />
-      <Search />
       {children}
     </nav>
   );
@@ -150,8 +157,7 @@ function NumResult({ movies }) {
     </p>
   );
 }
-function Search() {
-  const [query, setQuery] = useState("");
+function Search({ query, setQuery }) {
   return (
     <input
       className="search"
