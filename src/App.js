@@ -54,7 +54,7 @@ const average = (arr) =>
 // const KEY = "ad771e66";
 const KEY = "bea6759b";
 export default function App() {
-  const [query, setQuery] = useState("inception");
+  const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -110,6 +110,8 @@ export default function App() {
       setError("");
       return;
     }
+
+    handleCloseMovie();
 
     fetchMovies();
 
@@ -287,6 +289,18 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
   }
 
   useEffect(() => {
+    const callBack = (e) => {
+      if (e.code === "Escape") {
+        onCloseMovie();
+      }
+    };
+
+    document.addEventListener("keydown", callBack);
+
+    return () => document.removeEventListener("keydown", callBack);
+  }, [onCloseMovie]);
+
+  useEffect(() => {
     async function getMovieDetails() {
       setIsLoading(true);
       try {
@@ -297,7 +311,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
         setMovie(data);
         setIsLoading(false);
       } catch (err) {
-        console.log(err);
+        // console.log(err);
       }
     }
 
