@@ -54,7 +54,7 @@ const average = (arr) =>
 // const KEY = "ad771e66";
 const KEY = "bea6759b";
 export default function App() {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState("inception");
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -250,8 +250,6 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     (movie) => movie.imdbID === selectedId
   )?.userRating;
 
-  console.log(watchedUserRating);
-
   const {
     Title: title,
     Year: year,
@@ -297,6 +295,16 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
 
     getMovieDetails();
   }, [selectedId]);
+
+  useEffect(() => {
+    if (!title) return;
+    document.title = `Movie | ${title}`;
+
+    return () => {
+      document.title = "usePopcorn";
+    };
+  }, [title]);
+
   return (
     <div className="details">
       {isLoading ? (
@@ -307,7 +315,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
             <button className="btn-back" onClick={onCloseMovie}>
               &larr;
             </button>
-            <img src={poster} alt={`Poster of ${movie}`} movie />
+            <img src={poster} alt={`Poster of ${movie}`} />
             <div className="details-overview">
               <h2>{title}</h2>
               <p>
