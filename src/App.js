@@ -163,24 +163,12 @@ function NumResult({ movies }) {
 function Search({ query, setQuery }) {
   const inputEl = useRef(null);
 
-  useEffect(() => {
-    const callBack = (e) => {
-      if (document.activeElement === inputEl.current) return;
-      if (e.code === "Enter") {
-        inputEl.current.focus();
-        setQuery("");
-      }
-    };
+  useKey("Enter", () => {
+    if (document.activeElement === inputEl.current) return;
+    inputEl.current.focus();
+    setQuery("");
+  });
 
-    document.addEventListener("keydown", callBack);
-
-    return () => document.removeEventListener("keydown", callBack);
-  }, [setQuery]);
-
-  // useEffect(() => {
-  //   const el = document.querySelector(".search");
-  //   el.focus();
-  // }, []);
   return (
     <input
       className="search"
@@ -279,7 +267,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     onCloseMovie();
   }
 
-  const {} = useKey(callBack);
+  useKey("Escape", onCloseMovie);
 
   useEffect(() => {
     async function getMovieDetails() {
