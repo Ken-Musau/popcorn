@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import StarRating from "./StarRating";
+import { useMovies } from "./useMovies";
 
 const tempMovieData = [
   {
@@ -55,10 +56,9 @@ const average = (arr) =>
 const KEY = "bea6759b";
 export default function App() {
   const [query, setQuery] = useState("");
-  const [movies, setMovies] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState(null);
+
+  const { movies, isLoading, error } = useMovies(query, handleCloseMovie);
 
   // const [watched, setWatched] = useState([]);
   const [watched, setWatched] = useState(() =>
@@ -69,7 +69,7 @@ export default function App() {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
   }
 
-  function handleCloseMovie(id) {
+  function handleCloseMovie() {
     setSelectedId(null);
   }
 
@@ -86,49 +86,6 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("watched", JSON.stringify(watched));
   }, [watched]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function fetchMovies() {
-      try {
-        setIsLoading(true);
-        setError("");
-        const resp = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
-          { signal: controller.signal }
-        );
-
-        if (!resp.ok)
-          throw new Error("Something went wrong when Fetching movies");
-
-        const data = await resp.json();
-
-        if (data.Response === "False") throw new Error("Movie not found");
-
-        setMovies(data.Search);
-        setError("");
-      } catch (err) {
-        if (err.name !== "AbortError") setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    if (query.length < 3) {
-      setMovies([]);
-      setError("");
-      return;
-    }
-
-    handleCloseMovie();
-
-    fetchMovies();
-
-    return function () {
-      controller.abort();
-    };
-  }, [query]);
 
   return (
     <>
@@ -289,7 +246,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
   const countRef = useRef(0);
 
   useEffect(() => {
-    if (userRating) countRef.current = countRef.current + 1;
+    if (userRating) countRef.current++;
   }, [userRating]);
 
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
@@ -319,7 +276,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
       poster,
       imdbRating: +imdbRating,
       runtime: +runtime.split(" ").at(0),
-      countRatingDecisions: countRef.current
+      countRatingDecisions: countRef.current,
     };
 
     onAddWatched(newWatchedMovie);
